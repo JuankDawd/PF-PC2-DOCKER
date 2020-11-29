@@ -1,0 +1,50 @@
+version: "3.8"
+
+
+services:
+    Jupyter:
+        image: continuumio/anaconda3
+        command: jupyter notebook --port=8888 --no-browser --ip=0.0.0.0 --allow-root
+        container_name: Jupyternote
+        depends_on:
+            - db
+        ports:
+            - 8888:8888
+        environment:
+        - JUPYTER_TOKEN=easy     
+        volumes:
+            - ./Jupyther-NoteBook:/notebooks    
+    db:
+        image: mongo
+        expose:
+            - "27017"
+        ports:
+            - '27017-27019:27017-27019'
+        volumes: 
+            - mongodata:/data/db
+    
+    dash:
+        build: ./Dash
+        depends_on: 
+            - db
+        container_name: dash
+
+        ports:
+            - 8050:8050
+        environment: 
+            - VIRTUAL_HOST=dash.arthoughts.local
+        restart: on-failure
+
+    web:
+        build: .
+        depends_on:
+            - db
+        ports:
+            - "3000:3000"
+        volumes: 
+            - .:/opt/app
+            - /opt/app/node_modules
+
+volumes: 
+    mongodata:
+    Jupyther-NoteBook:
